@@ -7,10 +7,12 @@ show tables;
 
 create table if not exists store(
  `Name` varchar(50) DEFAULT NULL,
+ `Store_id` int(10) not null,
   `Address` varchar(50) DEFAULT NULL,
  `Phone_no` bigint(20) DEFAULT NULL,
- `Total_sales` decimal(10,2) DEFAULT NULL,
- `No_Employees` int default null
+ `Total_sales` decimal(10,2) DEFAULT 0 null,
+ `No_Employees` int default 0 null,
+ primary key (`Store_id`)
 );
 
 describe store;
@@ -31,8 +33,6 @@ create table if not exists medicine(
  `Brand` varchar(10) not null,
   `Medicine_id` varchar(10) not null,
   `Price` decimal(10,2) DEFAULT NULL,
-  `Exp_month` int default null,
-  `MFG_Date`date default null,
  primary key (`Medicine_id`)
 );
 
@@ -42,6 +42,8 @@ create table if not exists inventory(
   `Medicine_id` varchar(10) not null,
   `Total_quantity` bigint(20) DEFAULT 0,
   `Pending_orders` int(10) DEFAULT 0,
+  `Batch_ID` varchar(10) not null,
+  `Exp_Date` date default null,
  foreign key(`Medicine_id`) references medicine(`Medicine_id`)
 );
 
@@ -59,30 +61,11 @@ foreign key(`Medicine_id`) references medicine(`Medicine_id`)
 );
 
 describe `order`;
-
-create table if not exists supplied_order(
- `Supplied_id` varchar(10) not null,
-  `Medicine_id` varchar(10) not null,
-  `Price` decimal(10,2) default 0,
- `Quantity` decimal(10,2) DEFAULT 0,
- primary key (`Supplied_id`),
-  foreign key(`Medicine_id`) references medicine(`Medicine_id`)
-);
-
-create table if not exists supplier(
- `Name` varchar(50) not null,
- `Supplier_id` varchar(10) not null,
-  `Address` varchar(50) DEFAULT NULL,
- `Phone_no` bigint(20) DEFAULT NULL,
-  `Supplied_id` varchar(10) not null,
-   primary key (`Supplier_id`),
-   foreign key(`Supplied_id`) references supplied_order(`Supplied_id`)
-);
-
 show tables;
+describe store;
+select * from store;
 
 insert into store values("BITS PHARMACY",12345678,"Meera Marg,Pilani",9876543210,0,0.0);
-
 describe employee;
 insert into employee values("Yasaswini" ,00001,"MB,Pilani",913365233,0.0);
 insert into employee values("Radhika" ,00002,"MB,Pilani",923365233,0.0);
@@ -96,16 +79,17 @@ insert into employee values("Ahaan" ,00009,"BD,Pilani",9133652315,0.0);
 insert into employee values("Aryan" ,00010,"KN,Pilani",913365239,0.0);
 
 describe medicine;
-insert into medicine values("Dolo","Pfizer","DP0001",60.0,12,'2023-12-09');
-insert into medicine values("Paracetamol","Pfizer","PP0001",80.0,18,'2023-12-09');
-insert into medicine values("Crocin","Novartis","CN0001",70.0,6,'2023-12-09');
-insert into medicine values("Azithral","Novartis","AN0002",90.0,18,'2023-12-09');
-insert into medicine values("MontekLC","Cipla","MC0003",50.0,9,'2023-12-09');
-insert into medicine values("Brufen","Cipla","BC0006",150.0,10,'2023-12-09');
-insert into medicine values("Disprin","Biocon","DB0004",50.0,12,'2023-12-09');
-insert into medicine values("Avomin","Biocon","AB0002",40.0,36,'2023-12-09');
-insert into medicine values("Cetrizine","Apollo","CA0008",140.0,24,'2023-12-09');
-insert into medicine values("Mephthal","Apollo","MA0001",30.0,12,'2023-12-09');
+
+insert into medicine values("Dolo","Pfizer","DP0001",60.0);
+insert into medicine values("Paracetamol","Pfizer","PP0001",80.0);
+insert into medicine values("Crocin","Novartis","CN0001",70.0);
+insert into medicine values("Azithral","Novartis","AN0002",90.0);
+insert into medicine values("MontekLC","Cipla","MC0003",50.0);
+insert into medicine values("Brufen","Cipla","BC0006",150.0);
+insert into medicine values("Disprin","Biocon","DB0004",50.0);
+insert into medicine values("Avomin","Biocon","AB0002",40.0);
+insert into medicine values("Cetrizine","Apollo","CA0008",140.0);
+insert into medicine values("Mephthal","Apollo","MA0001",30.0);
 
 select * from mysql.user;
 
@@ -173,7 +157,24 @@ rollback;*/
 
 select * from mysql.user;
 show tables;
+
+create table if not exists supplier(
+ `Name` varchar(50) not null,
+ `Supplier_id` varchar(10) not null,
+  `Address` varchar(50) DEFAULT NULL,
+ `Phone_no` bigint(20) DEFAULT NULL,
+   primary key (`Supplier_id`)
+);
+
+show tables;
 describe inventory;
+select * from inventory;
+
+insert into inventory values ("DP0001",5,0);
+insert into inventory(`Medicine_id`,`Total_quantity`,`Pending_orders`,`Batch_ID`, `Exp_date`) values
+ ("PP0001",10,0 ),("CN0001",8,0),("AN0002",9,0),("MC0003",15,0),("BC0006",15,0),
+("DB0004",5,0),("CA0008",15,0),("MA0001",30,12);
+
 
 
 
