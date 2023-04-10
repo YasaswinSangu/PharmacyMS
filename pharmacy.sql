@@ -19,10 +19,12 @@ create table if not exists store(
 describe store;
 
 create table if not exists employee(
- `Name` varchar(50) DEFAULT NULL,
+ `First_Name` varchar(50) NOT NULL,
+ `Last_Name` varchar(50) DEFAULT NULL,
  `Employee_id` int(10) not null,
   `Address` varchar(50) DEFAULT NULL,
- `Phone_no` bigint(20) DEFAULT NULL,
+ `Phone_no1` bigint(20) DEFAULT NULL,
+ `Phone_no2` bigint(20) DEFAULT NULL,
  `Daily_sales` decimal(10,2) DEFAULT NULL,
  primary key (`Employee_id`)
 );
@@ -70,16 +72,16 @@ select * from store;
 
 insert into store values("BITS PHARMACY",12345678,"Meera Marg,Pilani",9876543210,0,0.0);
 describe employee;
-insert into employee values("Yasaswini" ,00001,"MB,Pilani",913365233,0.0);
-insert into employee values("Radhika" ,00002,"MB,Pilani",923365233,0.0);
-insert into employee values("Nikita" ,00003,"MB,Pilani",914365233,0.0);
-insert into employee values("Sanjana" ,00004,"MB,Pilani",913565233,0.0);
-insert into employee values("Mangala" ,00005,"MB,Pilani",913375233,0.0);
-insert into employee values("Akhil" ,00006,"RB,Pilani",913365833,0.0);
-insert into employee values("Arjun" ,00007,"RB,Pilani",913365933,0.0);
-insert into employee values("Aditya" ,00008,"GN,Pilani",913385234,0.0);
-insert into employee values("Ahaan" ,00009,"BD,Pilani",9133652315,0.0);
-insert into employee values("Aryan" ,00010,"KN,Pilani",913365239,0.0);
+insert into employee values("Yasaswini" ,"Sangu",00001,"MB,Pilani",913365233,NULL,0.0);
+insert into employee values("Radhika" ,"Gupta",00002,"MB,Pilani",923365233,7055037701,0.0);
+insert into employee values("Nikita" ,"Reddy", 00003,"MB,Pilani",914365233,NULL,0.0);
+insert into employee values("Sanjana" ,"Padavala",00004,"MB,Pilani",913565233,NULL,0.0);
+insert into employee values("Mangala" ,"Singh",00005,"MB,Pilani",913375233,9837138889,0.0);
+insert into employee values("Akhil" ,"Khanna",00006,"RB,Pilani",913365833,NULL,0.0);
+insert into employee values("Arjun" ,"Reddy",00007,"RB,Pilani",913365933,NULL,0.0);
+insert into employee values("Aditya" ,"Nair",00008,"GN,Pilani",913385234,NULL,0.0);
+insert into employee values("Ahaan" ,"Khan",00009,"BD,Pilani",9133652315,NULL,0.0);
+insert into employee values("Aryan" ,"Sharma",00010,"KN,Pilani",913365239,NULL,0.0);
 
 describe medicine;
 
@@ -214,7 +216,8 @@ AND DATEDIFF(Exp_Date, NOW()) >= 0;
 /* QUERY 3 Units of Medicines sold in last 30 days  */
 
 SELECT sum(quantity) from `order`
-where DATEDIFF(Date, NOW()) <= 0;
+where DATEDIFF(Date, NOW()) <= 0
+AND DATEDIFF(Date, NOW()) >= -30;
 
 /* QUERY 4  Out of Stock medicines*/
 SELECT NAME FROM 
