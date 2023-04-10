@@ -45,6 +45,7 @@ create table if not exists inventory(
   `Medicine_id` varchar(10) not null,
   `Total_quantity` bigint(20) DEFAULT 0,
   `Pending_orders` int(10) DEFAULT 0,
+  primary key(`Medicine_id`),
  foreign key(`Medicine_id`) references medicine(`Medicine_id`)
 );
 
@@ -123,51 +124,51 @@ insert into inventory(`Medicine_id`,`Total_quantity`,`Pending_orders`) values
 ('MA0001', 900, 90);
 
 begin;
-CREATE TRIGGER  update_inventory
-AFTER INSERT ON `order` FOR EACH ROW 
-UPDATE inventory SET Total_quantity = Total_quantity - NEW.Quantity WHERE
-medicine_id = NEW.medicine_id;	  
 
-CREATE TRIGGER update_employee
-AFTER INSERT ON `order` FOR EACH ROW
-UPDATE employee SET Daily_sales = Daily_sales +((SELECT Price 
-FROM `order` natural join medicine
- WHERE medicine_id = NEW.medicine_id)*NEW.Quantity) WHERE 
-employee.employee_id = NEW.employee_id; 
-        
 DELIMITER $$
 CREATE PROCEDURE insert_order(
     IN order_id INT,
     IN employee_id INT,
-    IN medicine_id VARCHAR(10),
+    IN medic_id VARCHAR(10),
     IN quantity INT,
     IN order_date DATE
 )
 BEGIN
-    DECLARE total_qty INT;
-SELECT 
-    Total_quantity
-INTO total_qty 
-FROM
-    inventory
-WHERE
-    inventory.Medicine_id = medicine_id;
+DECLARE total_qty INT;
+SELECT Total_quantity
+INTO total_qty FROM inventory
+WHERE inventory.Medicine_id = medic_id;
 
     IF quantity <= total_qty THEN
         INSERT INTO `order`(`Order_id`, `Employee_id`, `Medicine_id`, `Quantity`, `Date`)
-        VALUES(order_id, employee_id, medicine_id, quantity, order_date) ;
+        VALUES(order_id, employee_id, medic_id, quantity, order_date) ;
     ELSE 
         INSERT INTO `order`(`Order_id`, `Employee_id`, `Medicine_id`, `Quantity`, `Date`)
-        VALUES(order_id, employee_id, medicine_id,total_qty, order_date); 
+        VALUES(order_id, employee_id, medic_id,total_qty, order_date); 
         
 	/*ALTER TABLE inventory
 	MODIFY COLUMN Pending_orders INT(10) 
 	AS (inventory.Pending_orders+Total_quantity - (SELECT (Quantity) 
 	FROM `order` WHERE `order`.Medicine_id = inventory.Medicine_id));*/
+    
     END IF;
     
 END$$
 DELIMITER ;
+
+CREATE TRIGGER  update_inventory
+AFTER INSERT ON `order` FOR EACH ROW 
+UPDATE inventory SET Total_quantity = Total_quantity - (SELECT SUM(Quantity) FROM `order`
+WHERE `order`.medicine_id = NEW.medicine_id AND Order_id = NEW.Order_id) WHERE
+inventory.medicine_id = NEW.medicine_id;
+
+CREATE TRIGGER update_employee
+AFTER INSERT ON `order` FOR EACH ROW
+UPDATE employee SET  Daily_sales = Daily_sales +(( SELECT SUM(Price) 
+FROM `order` natural join medicine
+ WHERE medicine_id = NEW.medicine_id AND Order_id = NEW.Order_id)*(SELECT SUM(Quantity) FROM `order`
+    WHERE `order`.medicine_id = NEW.medicine_id AND Order_id = NEW.Order_id)) WHERE 
+employee.employee_id = NEW.employee_id; 
 
   commit;
   rollback;
@@ -181,6 +182,7 @@ DELIMITER ;
   call insert_order(0008, 00008, 'CA0008',30,'2023-04-08');
   call insert_order(0009, 00009, 'AN0002',70,'2023-04-09');
   call insert_order(0010, 00010, 'AB0002',18,'2023-04-10');
+
   
 select * from 	`order`;
   INSERT INTO `supplier` (`Name`, `Supplier_id`, `Address`, `Phone_no`)
@@ -233,14 +235,23 @@ WHERE Total_quantity<=0;
  
  /* QUERY 7 Average Monthly sales for past six months */
  
- SELECT sum(`Sale_Per_Month`)/6 
+ SELECT avg(`Sale_Per_Month`)
  FROM (SELECT YEAR(`order`.`Date`) AS `Year`, MONTH(`order`.`Date`) AS `Month`, AVG(`order`.`Quantity` * (`medicine`.`price`))
 AS `Sale_Per_Month`
 FROM `order` JOIN `medicine` ON `order`.`Medicine_id` = `medicine`.`Medicine_id`
 GROUP BY YEAR(`order`.`Date`), MONTH(`order`.`Date`)
-ORDER BY YEAR(`order`.`Date`), MONTH(`order`.`Date`) ) 
-AS `Average_six_Months`;
+ORDER BY YEAR(`order`.`Date`), MONTH(`order`.`Date`)  ) 
+AS `Average_per_Month`;
 
+ /* QUERY 8 Sales trend for past six months * - should be written as procedure */
+
+call insert_order(0011, 00001, 'PP0001',30,'2023-05-01');
+SELECT `medicine`.`Medicine_id`,YEAR(`order`.`Date`) AS `Year`, MONTH(`order`.`Date`) AS `Month`,count(`order`.Quantity) as Trend
+FROM `order` JOIN `medicine` ON `order`.`Medicine_id` = `medicine`.`Medicine_id`
+GROUP BY YEAR(`order`.`Date`), MONTH(`order`.`Date`),`medicine`.`Medicine_id`
+ORDER BY Trend ;
+select * from inventory;
+ 
  /* QUERY 9 Medicines with highest profit */
  
 SELECT m.Name, (m.Price - m.Cost) * o.Quantity AS profit
@@ -250,8 +261,7 @@ ORDER BY profit DESC;
 
 /* QUERY 10 Medicines with lowest turnover rate */
 
-
-/* QUERY 11 Employees with highest sakes */
+/* QUERY 11 Employees with highest sales */
 
 SELECT NAME,Daily_sales from employee 
 order by Daily_sales DESC;
