@@ -16,7 +16,7 @@ def add_medicine():
 	print('---------------------------------------------')
 	brand_name = input("Enter Manufacturer Name              \n")
 	print('---------------------------------------------')
-	med_id = input("Enter Manufacturer Name              \n")
+	med_id = input("Enter Medicine ID              \n")
 	print('---------------------------------------------')
 	med_price = input("Enter Price                 \n")
 	print('---------------------------------------------')
@@ -31,7 +31,8 @@ def add_medicine():
 	cursor.execute(sql_statement,values)
   
 # To save the data into the database under the particular table
-	cursor.commit()
+	mydb.commit()
+	print("Medicine Added Successfully!")
 
 def employee_dashboard():
     m_menu_choice=0
@@ -43,7 +44,7 @@ def employee_dashboard():
         print('---------------------------------------------')
         print('|Enter 3 to update medicine info            |')
         print('---------------------------------------------') 
-        print('|Enter 4 to go back to Main Menu            |')
+        print('|Enter 4 to exit                            |')
         print('---------------------------------------------')
         m_menu_choice=int(input("Enter Your Choice!\n"))
         if(m_menu_choice==1):
@@ -52,8 +53,8 @@ def employee_dashboard():
     #        search_medicine()
     #    elif(m_menu_choice==3):
     #        update_medicine()
-    #    elif(m_menu_choice==4):
-    #        break
+        elif(m_menu_choice==4):
+            employee_login()
         else:
             print("Invalid Input! Try Again!\n") 
             
@@ -65,7 +66,7 @@ def employee_login():
 	print('---------------------------------------------')
 	id = input("Enter Employee ID                 \n")
 
-	sql_statement = "SELECT name,Employee_id FROM EMPLOYEE WHERE name = %s and employee_id = %s" 
+	sql_statement = "SELECT first_name,Employee_id FROM EMPLOYEE WHERE first_name = %s and employee_id = %s" 
 	values = (emp_name,id) 
  
 	cursor.execute(sql_statement,values) 
@@ -91,6 +92,7 @@ def employee_login():
 		choice = input("Enter your choice\n")
 		if choice == '1':
 			employee_login()
+			
    
 employee_login() 
 
