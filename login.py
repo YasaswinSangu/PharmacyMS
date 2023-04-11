@@ -54,7 +54,7 @@ def employee_dashboard():
     #    elif(m_menu_choice==3):
     #        update_medicine()
         elif(m_menu_choice==4):
-            employee_login()
+            break;
         else:
             print("Invalid Input! Try Again!\n") 
             
